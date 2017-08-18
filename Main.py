@@ -12,6 +12,7 @@ spam_list = []
  
 for directories, subdirs, files in os.walk(data_dir):
     if (os.path.split(directories)[1]  == 'ham'):
+        print(directories, subdirs, len(files))
         for filename in files:      
             with open(os.path.join(directories, filename), encoding="latin-1") as f:
                 data = f.read()
@@ -19,6 +20,7 @@ for directories, subdirs, files in os.walk(data_dir):
                 ham_list.append((create_word_features(words), "ham"))
     
     if (os.path.split(directories)[1]  == 'spam'):
+        print(directories, subdirs, len(files))
         for filename in files:
             with open(os.path.join(directories, filename), encoding="latin-1") as f:
                 data = f.read()
