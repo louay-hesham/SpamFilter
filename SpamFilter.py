@@ -33,7 +33,7 @@ def read_training_data():
                     data = f.read()
                     words = nltk.tokenize.word_tokenize(data)                
                     spam_emails.append(words)
-                    ham_words += words
+                    spam_words += words
     
     total_count = spam_count + ham_count
     p_spam = spam_count / total_count
@@ -41,21 +41,25 @@ def read_training_data():
     return (ham_words, spam_words, p_ham, p_spam)
 
 def create_word_dict(ham_words, spam_words):
-    dictionary = {}
+    word_count = {}
+    ham_words_count = 0
+    spam_words_count = 0
     for word in ham_words:
         if word.isalpha() and len(word) > 1:
-            if word in dictionary:
-                dictionary[word] = (dictionary[word][0] + 1, 0)
+            ham_words_count += 1
+            if word in word_count:
+                word_count[word]["ham"] += 1
             else:
-                dictionary[word] = (1, 0)
+                word_count[word] = {"ham": 1, "spam": 0}
 
     for word in spam_words:
         if word.isalpha() and len(word) > 1:
-            if word in dictionary:
-                dictionary[word] = (dictionary[word][0], dictionary[word][1] + 1)
+            spam_words_count += 1
+            if word in word_count:
+                word_count[word]["spam"] += 1
             else:
-                dictionary[word] = (0, 1)
-    return dictionary
+                word_count[word] = {"ham": 0, "spam": 1}
+    return (word_count, ham_words_count, spam_words_count)
 
 def prepare_training_data():
     print("Reading training data")
@@ -63,8 +67,10 @@ def prepare_training_data():
     print("spam probability is ", p_spam)
     print("ham probability is ", p_ham)
     print("creating dictionary")
-    dictionary = create_word_dict(ham_words, spam_words)
-    print("Dictionary length is ", len(dictionary))
+    (word_count, ham_words_count, spam_words_count) = create_word_dict(ham_words, spam_words)
+    print("Dictionary length is ", len(word_count))
+    return (word_count, ham_words_count, spam_words_count)
+    
 
 
 
