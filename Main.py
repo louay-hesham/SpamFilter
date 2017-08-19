@@ -1,3 +1,3 @@
-from SpamFilter import *
+from SpamFilter import prepare_training_data
 
-create_training_data()
+prepare_training_data()
