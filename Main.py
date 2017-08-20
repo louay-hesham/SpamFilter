@@ -21,7 +21,8 @@ except (FileNotFoundError, TypeError, ValueError) as e:
 
 
 while (True):
-    choice = input("""Please make a choice
+    choice = input("""
+Please make a choice
     1- Single file mode
     2- Batch mode
     3- Rebuild model

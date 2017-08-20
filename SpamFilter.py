@@ -21,16 +21,16 @@ def read_training_data():
     
     #opening emails in training data
     for directories, subdirs, files in os.walk(data_dir):
-        if os.path.split(directories)[1]  == 'ham' or os.path.split(directories)[1]  == 'spam':
+        if os.path.split(directories)[1] == 'ham' or os.path.split(directories)[1] == 'spam':
             print("reading", directories, subdirs, len(files))
             for filename in files:
-                if os.path.split(directories)[1]  == 'ham':
+                if os.path.split(directories)[1] == 'ham':
                     ham_count += 1
                 else:
                     spam_count += 1      
                 with open(os.path.join(directories, filename), encoding="latin-1") as f:
                     words = tokenize_text(f.read().lower())
-                    if os.path.split(directories)[1]  == 'ham':
+                    if os.path.split(directories)[1] == 'ham':
                         ham_words += words
                     else:
                         spam_words += words
@@ -74,8 +74,8 @@ def prepare_training_data():
 def make_model(word_count, ham_words_count, spam_words_count):
     model = { }
     for word, count in word_count.items():
-        model[word] = { "ham": (count["ham"] + 1)/(ham_words_count + len(word_count)),
-                            "spam": (count["spam"] + 1)/(spam_words_count + len(word_count))}
+        model[word] = { "ham": (count["ham"] + 1) / (ham_words_count + len(word_count)),
+                            "spam": (count["spam"] + 1) / (spam_words_count + len(word_count))}
     return model
 
 def build_model():
