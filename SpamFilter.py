@@ -105,15 +105,25 @@ def get_class_probability(model, words, p_class, type, count):
             p *= (1 / (count[type] + len(model)))
     return p
 
+def get_text_type(model, p_ham, p_spam, count, text):
+    words = tokenize_text(text)
+    unique_words = get_unique_words(words)
+    ham = get_class_probability(model, unique_words, p_ham, "ham", count)
+    spam = get_class_probability(model, unique_words, p_spam, "spam", count)
+    return "not spam" if ham > spam else "spam"
+
 def classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
     count = {'ham': ham_words_count, 'spam': spam_words_count}
     with open(file_path, encoding="latin-1") as f:
-        words = tokenize_text(f.read().lower())
-        unique_words = get_unique_words(words)
-        ham = get_class_probability(model, unique_words, p_ham, "ham", count)
-        spam = get_class_probability(model, unique_words, p_spam, "spam", count)
-        return "not spam" if ham > spam else "spam"
-        
+        text = f.read().lower()
+        return get_text_type(model, p_ham, p_spam, count, text)
+
+def classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
+    count = {'ham': ham_words_count, 'spam': spam_words_count}
+    with open(file_path, encoding="latin-1") as f:
+        data = f.read().lower()
+        emails = data.split('\n')
+        return [get_text_type(model, p_ham, p_spam, count, email) for email in emails]
 
     
 

@@ -1,4 +1,4 @@
-from SpamFilter import build_model, classify_email
+from SpamFilter import build_model, classify_email, classify_batch_emails
 import tkinter as tk
 from tkinter import filedialog
 import json
@@ -33,6 +33,13 @@ while (True):
     elif choice == '1':
         file_path = filedialog.askopenfilename()
         type = classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path)
-        print("Email is", type, "\n\n")
+        print("        Email is", type, "\n\n")
+    elif choice == '2':
+        file_path = filedialog.askopenfilename()
+        types = classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path)
+        for i in range(0, len(types)):
+            print("        Email", i + 1, "is", types[i])
+        print("\n\n")
     elif choice == '3':
+        print("Rebuilding model")
         (model, p_ham, p_spam, ham_words_count, spam_words_count) = build_model()
