@@ -1,6 +1,8 @@
 import os
 import nltk
 from nltk.corpus import stopwords
+import json
+
 
 def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)
@@ -19,16 +21,16 @@ def read_training_data():
     
     #opening emails in training data
     for directories, subdirs, files in os.walk(data_dir):
-        if os.path.split(directories)[1]  == 'ham' or os.path.split(directories)[1]  == 'spam':
-            print("reading ", directories, subdirs, len(files))
+        if os.path.split(directories)[1] == 'ham' or os.path.split(directories)[1] == 'spam':
+            print("reading", directories, subdirs, len(files))
             for filename in files:
-                if os.path.split(directories)[1]  == 'ham':
+                if os.path.split(directories)[1] == 'ham':
                     ham_count += 1
                 else:
                     spam_count += 1      
                 with open(os.path.join(directories, filename), encoding="latin-1") as f:
                     words = tokenize_text(f.read().lower())
-                    if os.path.split(directories)[1]  == 'ham':
+                    if os.path.split(directories)[1] == 'ham':
                         ham_words += words
                     else:
                         spam_words += words
@@ -67,14 +69,62 @@ def prepare_training_data():
     print("creating dictionary")
     (word_count, ham_words_count, spam_words_count) = create_word_dict(ham_words, spam_words)
     print("Dictionary length is ", len(word_count))
-    return (word_count, ham_words_count, spam_words_count)
+    return (word_count, ham_words_count, spam_words_count, p_ham, p_spam)
 
-def build_naive_bayes_model(word_count, ham_words_count, spam_words_count):
+def make_model(word_count, ham_words_count, spam_words_count):
     model = { }
     for word, count in word_count.items():
-        model[word] = { "ham": (count["ham"] + 1)/(ham_words_count + len(word_count)),
-                            "spam": (count["spam"] + 1)/(spam_words_count + len(word_count))}
+        model[word] = { "ham": (count["ham"] + 1) / (ham_words_count + len(word_count)),
+                            "spam": (count["spam"] + 1) / (spam_words_count + len(word_count))}
     return model
+
+def build_model():
+    (word_count, ham_words_count, spam_words_count, p_ham, p_spam) = prepare_training_data()
+    model = make_model(word_count, ham_words_count, spam_words_count)
+    with open('model.JSON', 'w') as model_file:
+        json.dump(model, model_file)
+    with open('param.JSON', 'w') as param_file:
+        d = {"p_ham": p_ham, "p_spam": p_spam, "ham_words_count": ham_words_count, "spam_words_count": spam_words_count}
+        json.dump(d, param_file)
+    return (model, p_ham, p_spam, ham_words_count, spam_words_count)
+
+def get_unique_words(words):
+    word_set = set()
+    stop_words = set(stopwords.words('english'))
+    for word in words:
+        if word not in stop_words and word != "subject" and word != "":
+            word_set.update([word])
+    return word_set
+
+def get_class_probability(model, words, p_class, type, count):
+    p = p_class
+    for word in words:
+        if word in model:
+            p *= model[word][type]
+        else:
+            p *= (1 / (count[type] + len(model)))
+    return p
+
+def get_text_type(model, p_ham, p_spam, count, text):
+    words = tokenize_text(text)
+    unique_words = get_unique_words(words)
+    ham = get_class_probability(model, unique_words, p_ham, "ham", count)
+    spam = get_class_probability(model, unique_words, p_spam, "spam", count)
+    return "not spam" if ham > spam else "spam"
+
+def classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
+    count = {'ham': ham_words_count, 'spam': spam_words_count}
+    with open(file_path, encoding="latin-1") as f:
+        text = f.read().lower()
+        return get_text_type(model, p_ham, p_spam, count, text)
+
+def classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
+    count = {'ham': ham_words_count, 'spam': spam_words_count}
+    with open(file_path, encoding="latin-1") as f:
+        data = f.read().lower()
+        emails = data.split('\n')
+        return [get_text_type(model, p_ham, p_spam, count, email) for email in emails]
+
     
 
 

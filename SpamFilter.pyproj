@@ -661,6 +661,8 @@
     <Content Include="Data\enron6\spam\0067.2004-08-05.BG.spam.txt" />
     <Content Include="Data\enron6\spam\0068.2004-08-05.BG.spam.txt" />
     <Content Include="Data\enron6\Summary.txt" />
+    <Content Include="model.JSON" />
+    <Content Include="param.JSON" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
