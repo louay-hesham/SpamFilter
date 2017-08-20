@@ -1,6 +1,8 @@
 import os
 import nltk
 from nltk.corpus import stopwords
+import json
+
 
 def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)
@@ -20,7 +22,7 @@ def read_training_data():
     #opening emails in training data
     for directories, subdirs, files in os.walk(data_dir):
         if os.path.split(directories)[1]  == 'ham' or os.path.split(directories)[1]  == 'spam':
-            print("reading ", directories, subdirs, len(files))
+            print("reading", directories, subdirs, len(files))
             for filename in files:
                 if os.path.split(directories)[1]  == 'ham':
                     ham_count += 1
@@ -67,14 +69,24 @@ def prepare_training_data():
     print("creating dictionary")
     (word_count, ham_words_count, spam_words_count) = create_word_dict(ham_words, spam_words)
     print("Dictionary length is ", len(word_count))
-    return (word_count, ham_words_count, spam_words_count)
+    return (word_count, ham_words_count, spam_words_count, p_ham, p_spam)
 
-def build_naive_bayes_model(word_count, ham_words_count, spam_words_count):
+def make_model(word_count, ham_words_count, spam_words_count):
     model = { }
     for word, count in word_count.items():
         model[word] = { "ham": (count["ham"] + 1)/(ham_words_count + len(word_count)),
                             "spam": (count["spam"] + 1)/(spam_words_count + len(word_count))}
     return model
+
+def build_model():
+    (word_count, ham_words_count, spam_words_count, p_ham, p_spam) = prepare_training_data()
+    model = make_model(word_count, ham_words_count, spam_words_count)
+    with open('model.JSON', 'w') as model_file:
+        json.dump(model, model_file)
+    with open('param.JSON', 'w') as param_file:
+        d = {"p_ham": p_ham, "p_spam": p_spam, "ham_words_count": ham_words_count, "spam_words_count": spam_words_count}
+        json.dump(d, param_file)
+    return (model, p_ham, p_spam, ham_words_count, spam_words_count)
     
 
 
