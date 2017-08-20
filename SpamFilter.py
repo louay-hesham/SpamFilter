@@ -87,6 +87,34 @@ def build_model():
         d = {"p_ham": p_ham, "p_spam": p_spam, "ham_words_count": ham_words_count, "spam_words_count": spam_words_count}
         json.dump(d, param_file)
     return (model, p_ham, p_spam, ham_words_count, spam_words_count)
+
+def get_unique_words(words):
+    word_set = set()
+    stop_words = set(stopwords.words('english'))
+    for word in words:
+        if word not in stop_words and word != "subject" and word != "":
+            word_set.update([word])
+    return word_set
+
+def get_class_probability(model, words, p_class, type, count):
+    p = p_class
+    for word in words:
+        if word in model:
+            p *= model[word][type]
+        else:
+            p *= (1 / (count[type] + len(model)))
+    return p
+
+def classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
+    count = {'ham': ham_words_count, 'spam': spam_words_count}
+    with open(file_path, encoding="latin-1") as f:
+        words = tokenize_text(f.read().lower())
+        unique_words = get_unique_words(words)
+        ham = get_class_probability(model, unique_words, p_ham, "ham", count)
+        spam = get_class_probability(model, unique_words, p_spam, "spam", count)
+        return "not spam" if ham > spam else "spam"
+        
+
     
 
 
