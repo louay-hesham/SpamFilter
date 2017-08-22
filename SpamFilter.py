@@ -12,7 +12,7 @@ def tokenize_text(data):
     return filtered_list
    
 def read_training_data():
-    data_dir = "Data"
+    data_dir = "TrainingData"
     ham_words = []
     spam_words = []
    
