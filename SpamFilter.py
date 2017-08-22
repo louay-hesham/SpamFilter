@@ -8,7 +8,7 @@ def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)
     stop_words = set(stopwords.words('english'))
     ps = nltk.stem.SnowballStemmer('english')
-    filtered_list = ["" if x in stop_words else ps.stem(x) if x.isalpha() else "num" if x.isdecimal() else "" for x in words]
+    filtered_list = ["" if x in stop_words else ps.stem(x) if x.isalpha() else "num" if x.isnumeric() else "" for x in words]
     return filtered_list
    
 def read_training_data():
@@ -91,14 +91,6 @@ def build_model():
         json.dump(d, param_file)
     return (model, p_ham, p_spam, ham_words_count, spam_words_count)
 
-def get_unique_words(words):
-    word_set = set()
-    stop_words = set(stopwords.words('english'))
-    for word in words:
-        if word not in stop_words and word != "subject" and word != "":
-            word_set.update([word])
-    return word_set
-
 def get_class_probability(model, words, p_class, type, count):
     p = p_class
     for word in words:
@@ -124,7 +116,8 @@ def classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_coun
 def classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text):
     count = {'ham': ham_words_count, 'spam': spam_words_count}
     words = tokenize_text(text)
-    unique_words = get_unique_words(words)
+    unique_words = set(words)
+    unique_words -= set(["subject", ""])
     ham = get_class_probability(model, unique_words, p_ham, "ham", count)
     spam = get_class_probability(model, unique_words, p_spam, "spam", count)
     return "ham" if ham > spam else "spam"
@@ -146,9 +139,13 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
     print("Reading test data")
     mail_list = read_test_files()
     shuffle(mail_list)
-    sample_size = int(len(mail_list) / 4)
-    acc = 0
-    for i in range(0, 4):
+    print("Test data size is", len(mail_list), "emails")
+    n_samples = 5
+    sample_size = int(len(mail_list) / n_samples)
+    print("Number of samples =", n_samples)
+    print("Sample size =", sample_size, "emails")
+    avg_acc = 0
+    for i in range(0, n_samples):
         test_list = mail_list[i * sample_size : (i + 1) * sample_size]
         tp = 0
         tn = 0
@@ -165,11 +162,13 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
                     fn +=1
                 else:
                     fp +=1
-        acc += ((tp + tn) / (tp + tn + fp + fn))
-    return (acc / 4)
+        acc = (tp + tn) / (tp + tn + fp + fn)
+        print("Sample", i + 1, "accuracy =", acc)
+        avg_acc += acc
+    return (avg_acc / n_samples)
 
 
-
+# not needed anymore
 def calc_acc():
     (modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, test_list) = build_test_model()
     tp = 0
