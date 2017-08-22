@@ -1,6 +1,7 @@
 import os
 import nltk
 from nltk.corpus import stopwords
+from stemming.porter2 import stem
 import json
 from random import shuffle
 
@@ -8,8 +9,7 @@ from random import shuffle
 def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)       #Extracting words
     stop_words = set(stopwords.words('english'))    #Stop words init
-    ps = nltk.stem.SnowballStemmer('english')       #Stemmer init
-    filtered_list = ["" if x in stop_words else ps.stem(x) if x.isalpha() else "num" if x.isnumeric() else "" for x in words]   #Filtering words
+    filtered_list = ["" if x in stop_words else stem(x) if x.isalpha() else "num" if x.isnumeric() else "" for x in words]   #Filtering words
     return filtered_list
    
 #Reads training data and returns some parameters needed to generate the model
