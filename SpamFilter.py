@@ -130,6 +130,46 @@ def classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text)
     return "ham" if ham > spam else "spam"
 
 
+def read_test_files():
+    mail_list = []
+    data_dir = "TestData"
+    for directories, subdirs, files in os.walk(data_dir):
+        if os.path.split(directories)[1] == 'ham' or os.path.split(directories)[1] == 'spam':
+            print("reading", directories, subdirs, len(files))
+            for filename in files:
+                with open(os.path.join(directories, filename), encoding="latin-1") as f:
+                    text = f.read().lower()
+                    mail_list.append((text, os.path.split(directories)[1]))
+    return mail_list
+
+def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
+    print("Reading test data")
+    mail_list = read_test_files()
+    shuffle(mail_list)
+    sample_size = len(mail_list) / 4
+    acc = 0
+    for i in range(0, 4):
+        test_list = mail_list[i * sample_size : (i + 1) * sample_size]
+        tp = 0
+        tn = 0
+        fp = 0
+        fn = 0
+        for mail in test_list:
+            if mail[1] == classify_text(modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, mail[0]):
+                if mail[1] == "ham":
+                    tp +=1
+                else:
+                    tn +=1
+            else:
+                if mail[1] == "ham":
+                    fn +=1
+                else:
+                    fp +=1
+        acc += ((tp + tn) / (tp + tn + fp + fn))
+    return (acc / 4)
+
+
+
 def calc_acc():
     (modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, test_list) = build_test_model()
     tp = 0
@@ -148,23 +188,6 @@ def calc_acc():
             else:
                 fp +=1
     return (tp + tn) / (tp + tn + fp + fn)
-
-def read_files():
-    mail_list = []
-    data_dir = "Data"
-    #opening emails in training data
-    #reading files into a list of tuples
-    for directories, subdirs, files in os.walk(data_dir):
-        if os.path.split(directories)[1] == 'ham' or os.path.split(directories)[1] == 'spam':
-            print("reading", directories, subdirs, len(files))
-            for filename in files:
-                with open(os.path.join(directories, filename), encoding="latin-1") as f:
-                    text = f.read().lower()
-                    if os.path.split(directories)[1] == 'ham':
-                        mail_list.append((text, "ham"))
-                    else:
-                        mail_list.append((text, "spam"))
-    return mail_list
 
 def train_data(mail_list):
     ham_words = []
@@ -195,7 +218,7 @@ def train_data(mail_list):
 
 def prepare_data():
     print("Reading training data")
-    mail_list = read_files() 
+    mail_list = read_test_files() 
     (ham_words, spam_words, p_ham, p_spam, test_list) = train_data(mail_list)
     print("spam probability is ", p_spam)
     print("ham probability is ", p_ham)

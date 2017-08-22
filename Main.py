@@ -47,5 +47,5 @@ Please make a choice
         print("Rebuilding model")
         (model, p_ham, p_spam, ham_words_count, spam_words_count) = build_model()
     elif choice == '4':
-        acc = calc_acc()
+        acc = test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count)
         print("Accuracy is ",acc)
