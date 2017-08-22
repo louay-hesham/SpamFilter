@@ -5,11 +5,12 @@ import json
 from random import shuffle
 
 
-root = tk.Tk()
-root.withdraw()
+root = tk.Tk()  #Initing GUI window, only used to select a file
+root.withdraw() #Closing the GUI window itself as it's not needed
 
 print("Trying to load pre-generated model")
 try:
+    #Opens model from JSON file
     with open('model.JSON') as data_file:  
         model = json.load(data_file)
     with open("param.JSON") as data_file:
@@ -18,11 +19,12 @@ try:
     print("Model loaded from JSON file")
 except (FileNotFoundError, TypeError, ValueError) as e:
     #JSON file can not be found or is unreadable
+    #Model is generated from training data then saved to the JSON file
     print("Model can not be loaded from JSON file. Building model from scratch.")
     (model, p_ham, p_spam, ham_words_count, spam_words_count) = build_model()
 
 
-while (True):
+while (True): #Main loop
     choice = input("""
 Please make a choice
     1- Single file mode
@@ -35,11 +37,11 @@ Please make a choice
     if choice == '0':
         break
     elif choice == '1':
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename()    #Requesting file to be processed
         type = classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path)
         print("        Email is", type, "\n\n")
     elif choice == '2':
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename()    #Requesting file to be processed
         types = classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path)
         for i in range(0, len(types)):
             print("        Email", i + 1, "is", types[i])
