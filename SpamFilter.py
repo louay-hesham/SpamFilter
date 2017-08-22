@@ -129,14 +129,15 @@ def classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text)
     spam = get_class_probability(model, unique_words, p_spam, "spam", count)
     return "ham" if ham > spam else "spam"
 
+
 def calc_acc():
     (modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, test_list) = build_test_model()
-    tp=0
-    tn=0
-    fp=0
-    fn=0
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
     for mail in test_list:
-        if mail[1] ==  classify_text(modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, mail[0]):
+        if mail[1] == classify_text(modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, mail[0]):
             if mail[1] == "ham":
                 tp +=1
             else:
@@ -146,7 +147,7 @@ def calc_acc():
                 fn +=1
             else:
                 fp +=1
-    return (tp + tn)/(tp + tn + fp + fn)
+    return (tp + tn) / (tp + tn + fp + fn)
 
 def read_files():
     mail_list = []
@@ -160,9 +161,9 @@ def read_files():
                 with open(os.path.join(directories, filename), encoding="latin-1") as f:
                     text = f.read().lower()
                     if os.path.split(directories)[1] == 'ham':
-                        mail_list.append((text, "ham"));
+                        mail_list.append((text, "ham"))
                     else:
-                        mail_list.append((text, "spam"));
+                        mail_list.append((text, "spam"))
     return mail_list
 
 def train_data(mail_list):
@@ -174,7 +175,7 @@ def train_data(mail_list):
     ham_count = 0
     print("shuffling the mail list")
     shuffle(mail_list)
-    train = int(len(mail_list)*.8)
+    train = int(len(mail_list) * .8)
     train_list = mail_list[:train]
     test_list = mail_list[train:]
     print("training data")
