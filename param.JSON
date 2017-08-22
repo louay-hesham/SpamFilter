@@ -1,1 +1,1 @@
-{"p_ham": 0.5, "p_spam": 0.5, "ham_words_count": 45150, "spam_words_count": 51396}
+{"p_ham": 0.4, "p_spam": 0.6, "ham_words_count": 109262, "spam_words_count": 142175}

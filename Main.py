@@ -1,4 +1,4 @@
-from SpamFilter import build_model, classify_email, classify_batch_emails, calc_acc
+from SpamFilter import build_model, classify_email, classify_batch_emails, test_accuracy
 import tkinter as tk
 from tkinter import filedialog
 import json
@@ -8,6 +8,7 @@ from random import shuffle
 root = tk.Tk()
 root.withdraw()
 
+print("Trying to load pre-generated model")
 try:
     with open('model.JSON') as data_file:  
         model = json.load(data_file)
@@ -27,7 +28,7 @@ Please make a choice
     1- Single file mode
     2- Batch mode
     3- Rebuild model
-    4- calc accuracy
+    4- Calculate accuracy
     0- Exit
 
     Your choice is: """)
@@ -47,5 +48,5 @@ Please make a choice
         print("Rebuilding model")
         (model, p_ham, p_spam, ham_words_count, spam_words_count) = build_model()
     elif choice == '4':
-        acc = calc_acc()
-        print("Accuracy is ",acc)
+        acc = test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count)
+        print("Average accuracy = ",acc)
