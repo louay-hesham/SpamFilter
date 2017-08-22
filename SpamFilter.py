@@ -4,9 +4,6 @@ from nltk.corpus import stopwords
 import json
 from random import shuffle
 
-
-mail_list = []
-
 def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)
     ps = nltk.stem.SnowballStemmer('english')
@@ -109,14 +106,7 @@ def get_class_probability(model, words, p_class, type, count):
             p *= model[word][type]
         else:
             p *= (1 / (count[type] + len(model)))
-    return p
-
-def get_text_type(model, p_ham, p_spam, count, text):
-    words = tokenize_text(text)
-    unique_words = get_unique_words(words)
-    ham = get_class_probability(model, unique_words, p_ham, "ham", count)
-    spam = get_class_probability(model, unique_words, p_spam, "spam", count)
-    return "ham" if ham > spam else "spam"
+    return p    
 
 def classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
     count = {'ham': ham_words_count, 'spam': spam_words_count}
@@ -133,17 +123,14 @@ def classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_coun
 
 def classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text):
     count = {'ham': ham_words_count, 'spam': spam_words_count}
-    return get_text_type(model, p_ham, p_spam, count, text)
-
-def avg_acc():
-    ac1 = calc_acc()
-    ac2 = calc_acc()
-    ac3 = calc_acc()
-    ac4 = calc_acc()
-    return (ac1+ac2+ac3+ac4)/4
+    words = tokenize_text(text)
+    unique_words = get_unique_words(words)
+    ham = get_class_probability(model, unique_words, p_ham, "ham", count)
+    spam = get_class_probability(model, unique_words, p_spam, "spam", count)
+    return "ham" if ham > spam else "spam"
 
 def calc_acc():
-    (modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test,test_list) = build_modeltest()
+    (modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, test_list) = build_test_model()
     tp=0
     tn=0
     fp=0
@@ -162,9 +149,8 @@ def calc_acc():
     return (tp + tn)/(tp + tn + fp + fn)
 
 def read_files():
+    mail_list = []
     data_dir = "Data"
-    
-    
     #opening emails in training data
     #reading files into a list of tuples
     for directories, subdirs, files in os.walk(data_dir):
@@ -177,8 +163,9 @@ def read_files():
                         mail_list.append((text, "ham"));
                     else:
                         mail_list.append((text, "spam"));
+    return mail_list
 
-def train_data():
+def train_data(mail_list):
     ham_words = []
     spam_words = []
     p_spam = 0
@@ -203,25 +190,20 @@ def train_data():
     total_count = spam_count + ham_count
     p_spam = spam_count / total_count
     p_ham = ham_count / total_count
-    return (ham_words, spam_words, p_ham, p_spam,test_list)
+    return (ham_words, spam_words, p_ham, p_spam, test_list)
 
 def prepare_data():
     print("Reading training data")
-    read_files()
-    (ham_words, spam_words, p_ham, p_spam,test_list) = train_data()
+    mail_list = read_files() 
+    (ham_words, spam_words, p_ham, p_spam, test_list) = train_data(mail_list)
     print("spam probability is ", p_spam)
     print("ham probability is ", p_ham)
     print("creating dictionary")
     (word_count, ham_words_count, spam_words_count) = create_word_dict(ham_words, spam_words)
     print("Dictionary length is ", len(word_count))
-    return (word_count, ham_words_count, spam_words_count, p_ham, p_spam,test_list)
+    return (word_count, ham_words_count, spam_words_count, p_ham, p_spam, test_list)
 
-def build_modeltest():
+def build_test_model():
     (word_count, ham_words_count, spam_words_count, p_ham, p_spam,test_list) = prepare_data()
     model = make_model(word_count, ham_words_count, spam_words_count)
-    #with open('model.JSON', 'w') as model_file:
-     #   json.dump(model, model_file)
-    #with open('param.JSON', 'w') as param_file:
-     #   d = {"p_ham": p_ham, "p_spam": p_spam, "ham_words_count": ham_words_count, "spam_words_count": spam_words_count}
-      #  json.dump(d, param_file)
-    return (model, p_ham, p_spam, ham_words_count, spam_words_count,test_list)
+    return (model, p_ham, p_spam, ham_words_count, spam_words_count, test_list)

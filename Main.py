@@ -1,4 +1,4 @@
-from SpamFilter import build_model, classify_email, classify_batch_emails, mail_list, classify_text, avg_acc, build_modeltest
+from SpamFilter import build_model, classify_email, classify_batch_emails, calc_acc
 import tkinter as tk
 from tkinter import filedialog
 import json
@@ -32,8 +32,6 @@ Please make a choice
 
     Your choice is: """)
     if choice == '0':
-        type = classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, mail_list[251][0])
-        print("        Email is", type, "\n\n")
         break
     elif choice == '1':
         file_path = filedialog.askopenfilename()
@@ -49,6 +47,5 @@ Please make a choice
         print("Rebuilding model")
         (model, p_ham, p_spam, ham_words_count, spam_words_count) = build_model()
     elif choice == '4':
-        
-        acc = avg_acc()
+        acc = calc_acc()
         print("Accuracy is ",acc)
