@@ -6,8 +6,9 @@ from random import shuffle
 
 def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)
+    stop_words = set(stopwords.words('english'))
     ps = nltk.stem.SnowballStemmer('english')
-    filtered_list = [ps.stem(x) if x.isalpha() else "num" if x.isdecimal() else "" for x in words]
+    filtered_list = ["" if x in stop_words else ps.stem(x) if x.isalpha() else "num" if x.isdecimal() else "" for x in words]
     return filtered_list
    
 def read_training_data():
@@ -15,7 +16,6 @@ def read_training_data():
     ham_words = []
     spam_words = []
    
-
     p_spam = 0
     p_ham = 0
     spam_count = 0
@@ -46,9 +46,9 @@ def create_word_dict(ham_words, spam_words):
     word_count = {}
     ham_words_count = 0
     spam_words_count = 0
-    stop_words = set(stopwords.words('english'))
+    
     for word in ham_words:
-        if word not in stop_words and word != "subject" and word != "":
+        if word != "subject" and word != "":
             ham_words_count += 1
             if word in word_count:
                 word_count[word]["ham"] += 1
@@ -56,7 +56,7 @@ def create_word_dict(ham_words, spam_words):
                 word_count[word] = {"ham": 1, "spam": 0}
 
     for word in spam_words:
-        if word not in stop_words and word != "subject" and word != "":
+        if word != "subject" and word != "":
             spam_words_count += 1
             if word in word_count:
                 word_count[word]["spam"] += 1
@@ -112,14 +112,14 @@ def classify_email(model, p_ham, p_spam, ham_words_count, spam_words_count, file
     count = {'ham': ham_words_count, 'spam': spam_words_count}
     with open(file_path, encoding="latin-1") as f:
         text = f.read().lower()
-        return get_text_type(model, p_ham, p_spam, count, text)
+        return classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text)
 
 def classify_batch_emails(model, p_ham, p_spam, ham_words_count, spam_words_count, file_path):
     count = {'ham': ham_words_count, 'spam': spam_words_count}
     with open(file_path, encoding="latin-1") as f:
         data = f.read().lower()
         emails = data.split('\n')
-        return [get_text_type(model, p_ham, p_spam, count, email) for email in emails]
+        return [classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, email) for email in emails]
 
 def classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text):
     count = {'ham': ham_words_count, 'spam': spam_words_count}
