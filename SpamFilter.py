@@ -122,7 +122,6 @@ def classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, text)
     spam = get_class_probability(model, unique_words, p_spam, "spam", count)
     return "ham" if ham > spam else "spam"
 
-
 def read_test_files():
     mail_list = []
     data_dir = "TestData"
@@ -170,67 +169,3 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
         print("Sample", i + 1, "accuracy =", acc)
         avg_acc += acc
     return (avg_acc / n_samples)
-
-
-# not needed anymore
-def calc_acc():
-    (modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, test_list) = build_test_model()
-    tp = 0
-    tn = 0
-    fp = 0
-    fn = 0
-    for mail in test_list:
-        if mail[1] == classify_text(modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, mail[0]):
-            if mail[1] == "ham":
-                tp +=1
-            else:
-                tn +=1
-        else:
-            if mail[1] == "ham":
-                fn +=1
-            else:
-                fp +=1
-    return (tp + tn) / (tp + tn + fp + fn)
-
-def train_data(mail_list):
-    ham_words = []
-    spam_words = []
-    p_spam = 0
-    p_ham = 0
-    spam_count = 0
-    ham_count = 0
-    print("shuffling the mail list")
-    shuffle(mail_list)
-    train = int(len(mail_list) * .8)
-    train_list = mail_list[:train]
-    test_list = mail_list[train:]
-    print("training data")
-    for mail in train_list:
-        if mail[1] == "ham":
-            ham_count +=1
-            ham_words += tokenize_text(mail[0])
-        else:
-            spam_count +=1
-            spam_words += tokenize_text(mail[0])
-
-    print("tokenized")
-    total_count = spam_count + ham_count
-    p_spam = spam_count / total_count
-    p_ham = ham_count / total_count
-    return (ham_words, spam_words, p_ham, p_spam, test_list)
-
-def prepare_data():
-    print("Reading training data")
-    mail_list = read_test_files() 
-    (ham_words, spam_words, p_ham, p_spam, test_list) = train_data(mail_list)
-    print("spam probability is ", p_spam)
-    print("ham probability is ", p_ham)
-    print("creating dictionary")
-    (word_count, ham_words_count, spam_words_count) = create_word_dict(ham_words, spam_words)
-    print("Dictionary length is ", len(word_count))
-    return (word_count, ham_words_count, spam_words_count, p_ham, p_spam, test_list)
-
-def build_test_model():
-    (word_count, ham_words_count, spam_words_count, p_ham, p_spam,test_list) = prepare_data()
-    model = make_model(word_count, ham_words_count, spam_words_count)
-    return (model, p_ham, p_spam, ham_words_count, spam_words_count, test_list)
