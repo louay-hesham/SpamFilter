@@ -1,4 +1,4 @@
-from SpamFilter import build_model, classify_email, classify_batch_emails, calc_acc
+from SpamFilter import build_model, classify_email, classify_batch_emails, test_accuracy
 import tkinter as tk
 from tkinter import filedialog
 import json

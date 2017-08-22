@@ -146,7 +146,7 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
     print("Reading test data")
     mail_list = read_test_files()
     shuffle(mail_list)
-    sample_size = len(mail_list) / 4
+    sample_size = int(len(mail_list) / 4)
     acc = 0
     for i in range(0, 4):
         test_list = mail_list[i * sample_size : (i + 1) * sample_size]
@@ -155,7 +155,7 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
         fp = 0
         fn = 0
         for mail in test_list:
-            if mail[1] == classify_text(modeltest, p_ham_test, p_spam_test, ham_words_count_test, spam_words_count_test, mail[0]):
+            if mail[1] == classify_text(model, p_ham, p_spam, ham_words_count, spam_words_count, mail[0]):
                 if mail[1] == "ham":
                     tp +=1
                 else:
