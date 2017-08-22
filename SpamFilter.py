@@ -163,6 +163,10 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
                 else:
                     fp +=1
         acc = (tp + tn) / (tp + tn + fp + fn)
+        print("True positive =", tp)
+        print("True negative =", tn)
+        print("False positive =", fp)
+        print("False negative =", fn)
         print("Sample", i + 1, "accuracy =", acc)
         avg_acc += acc
     return (avg_acc / n_samples)
