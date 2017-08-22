@@ -1,7 +1,8 @@
-from SpamFilter import build_model, classify_email, classify_batch_emails
+from SpamFilter import build_model, classify_email, classify_batch_emails, calc_acc
 import tkinter as tk
 from tkinter import filedialog
 import json
+from random import shuffle
 
 
 root = tk.Tk()
@@ -26,6 +27,7 @@ Please make a choice
     1- Single file mode
     2- Batch mode
     3- Rebuild model
+    4- calc accuracy
     0- Exit
 
     Your choice is: """)
@@ -44,3 +46,6 @@ Please make a choice
     elif choice == '3':
         print("Rebuilding model")
         (model, p_ham, p_spam, ham_words_count, spam_words_count) = build_model()
+    elif choice == '4':
+        acc = calc_acc()
+        print("Accuracy is ",acc)
