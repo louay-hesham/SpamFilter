@@ -2,18 +2,21 @@ import os
 import nltk
 from nltk.corpus import stopwords
 from stemming.porter2 import stem
+from nltk import PorterStemmer
 import json
 from random import shuffle
 from nltk.classify.naivebayes import NaiveBayesClassifier
 import nltk.classify.util
 from nltk.classify import MaxentClassifier
+import nltk
+
 
 
 #Method that splits a string into words. Also removes stop words, stems text and replaces any number with "num"
 def tokenize_text(data):
     words = nltk.tokenize.word_tokenize(data)       #Extracting words
     stop_words = set(stopwords.words('english'))    #Stop words init
-    filtered_list = ["" if x in stop_words else stem(x) if x.isalpha() else "num" if x.isnumeric() else "" for x in words]   #Filtering words
+    filtered_list = ["" if x in stop_words else nltk.SnowballStemmer('english').stem(x) if x.isalpha() else "num" if x.isnumeric() else "" for x in words]   #Filtering words
     return filtered_list
    
 #Reads training data and returns some parameters needed to generate the model
@@ -243,7 +246,7 @@ def built_classifiers():
      return (train_data, test_list)
 
 def naive():
-     (train_list, test_list) = built_classifiers
+     (train_list, test_list) = built_classifiers()
      classifier = NaiveBayesClassifier.train(train_list)
 
      accuracy = nltk.classify.util.accuracy(classifier, test_list)

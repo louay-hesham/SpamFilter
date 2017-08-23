@@ -32,7 +32,6 @@ Please make a choice
     3- Rebuild model
     4- Calculate accuracy
     5- built in naive
-    6- svm
     0- Exit
 
     Your choice is: """)
