@@ -4,6 +4,10 @@ from nltk.corpus import stopwords
 from stemming.porter2 import stem
 import json
 from random import shuffle
+from nltk.classify.naivebayes import NaiveBayesClassifier
+import nltk.classify.util
+from nltk.classify import MaxentClassifier
+
 
 #Method that splits a string into words. Also removes stop words, stems text and replaces any number with "num"
 def tokenize_text(data):
@@ -195,3 +199,60 @@ def test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count):
         print("Sample", i + 1, "accuracy =", acc)
         avg_acc += acc
     return (avg_acc / n_samples)
+
+def create_word_features(words):
+      my_dict = dict( [ (word, True) for word in words] )
+      return my_dict
+
+def built_classifiers():
+     data_dir = "TrainingData"
+ 
+     ham_list = []
+     spam_list = []
+  
+     for directories, subdirs, files in os.walk(data_dir):
+         if (os.path.split(directories)[1]  == 'ham'):
+             print(directories, subdirs, len(files))
+             for filename in files:      
+                 with open(os.path.join(directories, filename), encoding="latin-1") as f:
+                     data = f.read()
+                     words = nltk.tokenize.word_tokenize(data)                
+                     ham_list.append((create_word_features(words), "ham"))
+     
+         if (os.path.split(directories)[1]  == 'spam'):
+             print(directories, subdirs, len(files))
+             for filename in files:
+                 with open(os.path.join(directories, filename), encoding="latin-1") as f:
+                     data = f.read()
+                     words = nltk.tokenize.word_tokenize(data)                
+                     spam_list.append((create_word_features(words), "spam"))
+     train_data = ham_list + spam_list
+     data_dir = "TestData"
+
+     ham_list2 = []
+     spam_list2 = []
+     mail_list = read_test_files()
+     for mail in mail_list:
+         data = mail[0]
+         words = nltk.tokenize.word_tokenize(data) 
+         if mail[1] == "ham":
+            ham_list2.append((create_word_features(words), "ham"))
+         else:
+            spam_list2.append((create_word_features(words), "spam"))
+     test_list = ham_list2 + spam_list2
+     return (train_data, test_list)
+
+def naive():
+     (train_list, test_list) = built_classifiers
+     classifier = NaiveBayesClassifier.train(train_list)
+
+     accuracy = nltk.classify.util.accuracy(classifier, test_list)
+  
+     print(" Naive Accuracy is: ", accuracy * 100) 
+
+def maxent():
+    (train_list, test_list) = built_classifiers()
+    test_list = test_list[:10]
+    classifier = MaxentClassifier.train(train_list)
+    accuracy = nltk.classify.util.accuracy(classifier, test_list)
+    print(" Naive Accuracy is: ", accuracy * 100) 

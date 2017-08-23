@@ -1,4 +1,4 @@
-from SpamFilter import build_model, classify_email, classify_batch_emails, test_accuracy
+from SpamFilter import build_model, classify_email, classify_batch_emails, test_accuracy, naive, maxent
 import tkinter as tk
 from tkinter import filedialog
 import json
@@ -31,6 +31,8 @@ Please make a choice
     2- Batch mode
     3- Rebuild model
     4- Calculate accuracy
+    5- built in naive
+    6- svm
     0- Exit
 
     Your choice is: """)
@@ -52,3 +54,7 @@ Please make a choice
     elif choice == '4':
         acc = test_accuracy(model, p_ham, p_spam, ham_words_count, spam_words_count)
         print("Average accuracy = ",acc)
+    elif choice == '5':
+        naive()
+    elif choice == '6':
+        maxent()
